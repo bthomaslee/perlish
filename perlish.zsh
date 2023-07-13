@@ -6,6 +6,7 @@
 ### FUNCTIONS AND VARIABLES ###
 
 # Set initial variables.
+use_macos_popup_dialogue="n"
 match_whole_words_only="y"
 d=20 # Set the number of children for each node in the d-ary heap. Must be an even number (i.e., divisible into two equal sets of lb's and la's).
 if ! [[ "$(($d%2))" -eq 0 ]]; then echo "\n❌ The number of children for each node must be divisible into two equal sets.\n"; exit; fi
@@ -16,6 +17,10 @@ until [[ "$n" -eq "$h" ]]; do
     let n++
 done
 unset n
+if ! [[ -z "$1" ]]
+    then
+    query="$1"
+fi
 
 # Set initial arrays.
 declare -A pchars
@@ -389,20 +394,38 @@ parse_perlish_expression(){
 ### MAIN SCRIPT ###
 
 # Set query.
-if [[ -z "$1" && -z "$query" ]]
+if [[ $use_macos_popup_dialogue = "y" ]]
     then
-    prompt="Please enter a set of one or more perlish expressions.\nEnclose separate expressions, if any, in double quotes.\n"
-    default_answer=""
-    input="$(osascript -e 'display dialog "'${prompt}'" with title "Perlish Interpreter" default answer "'${default_answer}'" buttons ("Cancel", "Enter")')" &>/dev/null
-    button_returned="$(printf "$input" | cut -d ":" -f2 | cut -d "," -f1 )"
-    text_returned="$(printf "$input" | cut -d ":" -f3 )"
-    if [[ "$text_returned" = "" || "$button_returned" = "Cancel" ]]
-        then exit
-    elif [[ "$button_returned" = "Enter" ]]
-        then query="$text_returned"
+
+    if [[ -z "$1" && -z "$query" ]]
+        then
+        prompt="Please enter a set of one or more perlish expressions.\nEnclose separate expressions, if any, in double quotes.\n"
+        default_answer=""
+        input="$(osascript -e 'display dialog "'${prompt}'" with title "Perlish Interpreter" default answer "'${default_answer}'" buttons ("Cancel", "Enter")')" &>/dev/null
+        button_returned="$(printf "$input" | cut -d ":" -f2 | cut -d "," -f1 )"
+        text_returned="$(printf "$input" | cut -d ":" -f3 )"
+        if [[ "$text_returned" = "" || "$button_returned" = "Cancel" ]]
+            then exit
+        elif [[ "$button_returned" = "Enter" ]]
+            then query="$text_returned"
+        fi
+        else query="${query:=$1}"
     fi
-    else query="${query:=$1}"
+
+    else
+
+    if [[ -z "$1" && -z "$query" ]]
+        then
+        prompt="Please enter a set of one or more perlish expressions.\nEnclose separate expressions, if any, in double quotes.\n"
+        printf "$prompt\n\n"
+        read input
+        if [[ "$input" = "" ]]
+            then exit
+        fi
+        else query="${query:=$1}"
+    fi
 fi
+
 
 # Parse query into expressions.
 set_perlish_metacharacters
