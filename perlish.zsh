@@ -417,9 +417,9 @@ if [[ $use_macos_popup_dialogue = "y" ]]
     if [[ -z "$1" && -z "$query" ]]
         then
         prompt="Please enter a set of one or more perlish expressions.\nEnclose separate expressions, if any, in double quotes.\n"
-        printf "$prompt\n\n"
-        read input
-        if [[ "$input" = "" ]]
+        printf "$prompt\n"
+        read query
+        if [[ "$query" = "" ]]
             then exit
         fi
         else query="${query:=$1}"
